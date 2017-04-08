@@ -1,24 +1,45 @@
 // Available regions and zones: https://console.cloud.google.com/compute/zones
 
-variable "instance_type" {
-  description = "EC2 instance type."
-}
-
 variable "region" {
   description = "EC2 region."
   default = "us-west-2"
+}
+
+variable "vpc_name" {
+  description = "The name of the VPC."
+  default     = "mesosphere"
+}
+
+variable "vpc_cidr_block" {
+  default = "10.0.0.0/16"
+}
+
+# Total IPs in subnet = 2^(16-subnet_size_bits)
+
+variable "subnet_size_bit" {
+  default = 10
+}
+
+variable "instance_type" {
+  description = "EC2 instance type."
 }
 
 variable "key_name" {
   description = "Name of the SSH key pair for EC2 instance."
 }
 
-variable "security_group" {
-  description = "Security group for this EC2 instance."
-}
-
 variable "root_device_type" {
   description = "The root AMI device type ie. ebs or instance-store."
+}
+
+variable "master_count" {
+  description = "The number of master nodes to spin up."
+  default     = 2
+}
+
+variable "slave_count" {
+  description = "The number of slave nodes to spin up."
+  default     = 2
 }
 
 # Metadata and look-up

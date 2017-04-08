@@ -3,6 +3,5 @@
 
 key_name = "<Enter AWS EC2 SSH key pair>"
 instance_type = "<Enter AWS EC2 instance type>"
-security_group = "<Enter security group to be associated with the EC2 instance>"
 region_name = "<Enter the region>"
 root_device_type = "<The root AMI device type ie. ebs or instance-store>"
