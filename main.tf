@@ -82,6 +82,15 @@ data "template_file" "mesos_master" {
   }
 }
 
+data "template_file" "mesos_slave" {
+  count = "${var.slave_count}"
+  template = "${file("mesos_slave_userdata.sh")}"
+
+  vars = {
+    "ip_address" = "${lookup(var.slave_ip_addresses, count.index + 1)}"
+  }
+}
+
 # Master Mesos instances
 # Seems like the first 3 IP addresses of a subnet are reserved. So we start from the 4th.
 
@@ -110,6 +119,7 @@ resource "aws_instance" "slave" {
   ami                         = "${lookup(var.ubuntu_images, var.region)}"
   key_name                    = "${var.key_name}"
   vpc_security_group_ids      = ["${aws_security_group.open.id}"]
+  user_data                   = "${element(data.template_file.mesos_slave.*.rendered, count.index)}"
   private_ip                  = "${lookup(var.slave_ip_addresses, count.index + 1)}"
   subnet_id                   = "${aws_subnet.subnet_public.id}"
   associate_public_ip_address = true

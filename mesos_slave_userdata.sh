@@ -5,7 +5,7 @@
 apt-key adv --keyserver keyserver.ubuntu.com --recv E56151BF
 DISTRO=$(lsb_release -is | tr '[:upper:]' '[:lower:]')
 CODENAME=$(lsb_release -cs)
-echo "deb http://repos.mesosphere.io/${DISTRO} ${CODENAME} main" | tee /etc/apt/sources.list.d/mesosphere.list
+echo "deb http://repos.mesosphere.io/$DISTRO $CODENAME main" | tee /etc/apt/sources.list.d/mesosphere.list
 
 # Add the Java repository
 
@@ -22,3 +22,31 @@ echo "oracle-java8-installer shared/accepted-oracle-license-v1-1 select true" | 
 apt-get install -y oracle-java8-installer
 
 apt-get install -y mesos
+
+### Configure Mesos ###
+
+cat > /etc/mesos-slave/ip << EOF
+${ip_address}
+EOF
+
+cp /etc/mesos-slave/ip /etc/mesos-slave/hostname
+
+### Autostart services ###
+
+# Mesos-slave
+if [ ! -f /etc/init.d/mesos-slave ]; then
+  ln -s /lib/init/upstart-job /etc/init.d/mesos-slave
+fi
+update-rc.d mesos-slave defaults
+service mesos-slave start
+
+# Zookeeper
+update-rc.d zookeeper remove
+service zookeeper stop
+echo "manual" > /etc/init/zookeeper.override
+
+# Mesos-master
+update-rc.d mesos-master remove
+service mesos-master stop
+echo "manual" > /etc/init/mesos-master.override
+
