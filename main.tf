@@ -77,6 +77,8 @@ data "template_file" "mesos_master" {
     "zookeeper_ip_addresses" = "${var.zookeeper_ip_addresses}"
     "zookeeper_config_ip_addresses" = "${var.zookeeper_config_ip_addresses}"
     "zookeeper_id" = "${count.index + 1}"
+    "quorum" = "${var.quorum}"
+    "ip_address" = "${lookup(var.master_ip_addresses, count.index + 1)}"
   }
 }
 

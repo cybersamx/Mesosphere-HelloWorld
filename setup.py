@@ -29,7 +29,7 @@ for i in range(1, slave_count + 1):
 
 config['master_ip_addresses'] = master_ip_addresses
 config['slave_ip_addresses'] = slave_ip_addresses
-config['zookeeper_ip_addresses'] = 'zk://{0}/mesos'.format(','.join('{0}:2181'.format(ip) for ip in master_ip_addresses.values()))
+config['zookeeper_ip_addresses'] = 'zk://{0}'.format(','.join('{0}:2181'.format(ip) for ip in master_ip_addresses.values()))
 
 zookeeper_config_ip_addresses = map(lambda x: 'server.{0}={1}:2888:3888'.format(x, master_ip_addresses[x]), master_ip_addresses)
 config['zookeeper_config_ip_addresses'] = '\n'.join(zookeeper_config_ip_addresses)

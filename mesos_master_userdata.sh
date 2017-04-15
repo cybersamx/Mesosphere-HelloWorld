@@ -23,9 +23,11 @@ apt-get install -y oracle-java8-installer
 
 apt-get install -y mesosphere
 
+### Configure Zookeeper ###
+
 # Configure the IP addresses in the master zookeeper cluster.
 cat > /etc/mesos/zk << EOF
-${zookeeper_ip_addresses}
+${zookeeper_ip_addresses}/mesos
 EOF
 
 echo "${zookeeper_config_ip_addresses}" \
@@ -35,3 +37,47 @@ echo "${zookeeper_config_ip_addresses}" \
 cat > /etc/zookeeper/conf/myid << EOF
 ${zookeeper_id}
 EOF
+
+### Configure Mesos ###
+
+cat > /etc/mesos-master/quorum << EOF
+${quorum}
+EOF
+
+cat > /etc/mesos-master/ip << EOF
+${ip_address}
+EOF
+
+cp /etc/mesos-master/ip /etc/mesos-master/hostname
+
+### Configure Marathon ###
+
+mkdir -p /etc/marathon/conf
+cp /etc/mesos-master/ip /etc/marathon/conf/hostname
+
+cp /etc/mesos/zk /etc/marathon/conf/master
+
+cat > /etc/marathon/conf/zk << EOF
+${zookeeper_ip_addresses}/marathon
+EOF
+
+### Autostart services ###
+
+# Mesos-master
+if [ ! -f /etc/init.d/mesos-master ]; then
+  ln -s /lib/init/upstart-job /etc/init.d/mesos-master
+fi
+update-rc.d mesos-master defaults
+service mesos-master start
+
+# Marathon
+if [ ! -f /etc/init.d/marathon ]; then
+  ln -s /lib/init/upstart-job /etc/init.d/marathon
+fi
+update-rc.d marathon defaults
+service marathon start
+
+# Mesos-slave
+update-rc.d mesos-slave remove
+service mesos-slave stop
+echo "manual" > /etc/init/mesos-slave.override

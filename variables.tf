@@ -56,6 +56,10 @@ variable "zookeeper_ip_addresses" {
   description = "Content for /etc/mesos/zk."
 }
 
+variable "quorum" {
+  description = "Minimum number of master nodes needed to make scheduling decisions."
+}
+
 # Metadata and look-up
 # Note: Hash variable must be flat, hence the value is a string not an array.
 
