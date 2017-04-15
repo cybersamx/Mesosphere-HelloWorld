@@ -74,7 +74,7 @@ data "template_file" "mesos_master" {
   template = "${file("mesos_master_userdata.sh")}"
 
   vars = {
-    "zookeeper_ip_addresses" = "${var.zookeeper_ip_addresses}"
+    "zookeeper_master_ip_addresses" = "${var.zookeeper_master_ip_addresses}"
     "zookeeper_config_ip_addresses" = "${var.zookeeper_config_ip_addresses}"
     "zookeeper_id" = "${count.index + 1}"
     "quorum" = "${var.quorum}"
@@ -87,6 +87,7 @@ data "template_file" "mesos_slave" {
   template = "${file("mesos_slave_userdata.sh")}"
 
   vars = {
+    "zookeeper_master_ip_addresses" = "${var.zookeeper_master_ip_addresses}"
     "ip_address" = "${lookup(var.slave_ip_addresses, count.index + 1)}"
   }
 }

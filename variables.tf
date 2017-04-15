@@ -52,8 +52,8 @@ variable "zookeeper_config_ip_addresses" {
   description = "Content for /etc/zookeeper/conf/zoo.cfg."
 }
 
-variable "zookeeper_ip_addresses" {
-  description = "Content for /etc/mesos/zk."
+variable "zookeeper_master_ip_addresses" {
+  description = "Content for /etc/mesos/zk. zk:// protocol for identifying the Mesos master nodes."
 }
 
 variable "quorum" {

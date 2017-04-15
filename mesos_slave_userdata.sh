@@ -23,6 +23,13 @@ apt-get install -y oracle-java8-installer
 
 apt-get install -y mesos
 
+### Configure Zookeeper ###
+
+# Define the master nodes.
+cat > /etc/mesos/zk << EOF
+${zookeeper_master_ip_addresses}/mesos
+EOF
+
 ### Configure Mesos ###
 
 cat > /etc/mesos-slave/ip << EOF

@@ -25,9 +25,9 @@ apt-get install -y mesosphere
 
 ### Configure Zookeeper ###
 
-# Configure the IP addresses in the master zookeeper cluster.
+# Define the master nodes.
 cat > /etc/mesos/zk << EOF
-${zookeeper_ip_addresses}/mesos
+${zookeeper_master_ip_addresses}/mesos
 EOF
 
 echo "${zookeeper_config_ip_addresses}" \
@@ -58,7 +58,7 @@ cp /etc/mesos-master/ip /etc/marathon/conf/hostname
 cp /etc/mesos/zk /etc/marathon/conf/master
 
 cat > /etc/marathon/conf/zk << EOF
-${zookeeper_ip_addresses}/marathon
+${zookeeper_master_ip_addresses}/marathon
 EOF
 
 ### Autostart services ###
