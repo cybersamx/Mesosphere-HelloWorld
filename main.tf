@@ -1,5 +1,7 @@
 ### Create VPC to isolate the Mesos nodes ###
 
+# Initialization
+
 provider "aws" {
   region = "${var.region}"
 }
@@ -7,7 +9,7 @@ provider "aws" {
 # Create and configure a VPC
 
 resource "aws_vpc" "main" {
-  cidr_block           = "${var.vpc_cidr_block}"
+  cidr_block           = "${var.vpc_cidr}"
   enable_dns_hostnames = true
 
   tags {
@@ -19,7 +21,7 @@ resource "aws_vpc" "main" {
 
 resource "aws_subnet" "subnet_public" {
   vpc_id            = "${aws_vpc.main.id}"
-  cidr_block        = "${cidrsubnet(var.vpc_cidr_block, var.subnet_size_bit, 0)}"
+  cidr_block        = "${var.subnet_cidr}"
   availability_zone = "${element(split(",", lookup(var.zones, var.region)), 0)}"
 
   tags {
@@ -67,9 +69,19 @@ resource "aws_security_group" "open" {
   }
 }
 
+data "template_file" "mesos_master" {
+  count = "${var.master_count}"
+  template = "${file("mesos_master_userdata.sh")}"
+
+  vars = {
+    "zookeeper_ip_addresses" = "${var.zookeeper_ip_addresses}"
+    "zookeeper_config_ip_addresses" = "${var.zookeeper_config_ip_addresses}"
+    "zookeeper_id" = "${count.index + 1}"
+  }
+}
 
 # Master Mesos instances
-# Seems like the first 3 IP addresses of a subnet are reserved.
+# Seems like the first 3 IP addresses of a subnet are reserved. So we start from the 4th.
 
 resource "aws_instance" "master" {
   count                       = "${var.master_count}"
@@ -77,32 +89,34 @@ resource "aws_instance" "master" {
   ami                         = "${lookup(var.ubuntu_images, var.region)}"
   key_name                    = "${var.key_name}"
   vpc_security_group_ids      = ["${aws_security_group.open.id}"]
-  user_data                   = "${file("mesos_master_userdata.sh")}"
-  private_ip                  = "${cidrhost(cidrsubnet(var.vpc_cidr_block, var.subnet_size_bit, 0), count.index + 4)}"
+  user_data                   = "${element(data.template_file.mesos_master.*.rendered, count.index)}"
+  private_ip                  = "${lookup(var.master_ip_addresses, count.index + 1)}"
   subnet_id                   = "${aws_subnet.subnet_public.id}"
   associate_public_ip_address = true
   source_dest_check           = false
 
   tags {
-    Name = "i-mesos-master-${count.index}"
+    Name = "i-mesos-master-${count.index + 1}"
   }
 }
 
 # Master Mesos instances
 
 resource "aws_instance" "slave" {
-  count                       = "${var.master_count}"
+  count                       = "${var.slave_count}"
   instance_type               = "${var.instance_type}"
   ami                         = "${lookup(var.ubuntu_images, var.region)}"
   key_name                    = "${var.key_name}"
   vpc_security_group_ids      = ["${aws_security_group.open.id}"]
-  user_data                   = "${file("mesos_slave_userdata.sh")}"
-  private_ip                  = "${cidrhost(cidrsubnet(var.vpc_cidr_block, var.subnet_size_bit, 0), var.master_count + count.index + 4)}"
+  private_ip                  = "${lookup(var.slave_ip_addresses, count.index + 1)}"
   subnet_id                   = "${aws_subnet.subnet_public.id}"
   associate_public_ip_address = true
   source_dest_check           = false
 
   tags {
-    Name = "i-mesos-slave-${count.index}"
+    Name = "i-mesos-slave-${count.index + 1}"
   }
 }
+
+# Outputs
+

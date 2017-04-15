@@ -2,22 +2,28 @@
 
 variable "region" {
   description = "EC2 region."
-  default = "us-west-2"
 }
 
 variable "vpc_name" {
   description = "The name of the VPC."
-  default     = "mesosphere"
 }
 
-variable "vpc_cidr_block" {
-  default = "10.0.0.0/16"
+variable "vpc_cidr" {
+  description = "VPC CIDR block."
 }
 
-# Total IPs in subnet = 2^(16-subnet_size_bits)
+variable "subnet_cidr" {
+  description = "Subnet CIDR block."
+}
 
-variable "subnet_size_bit" {
-  default = 10
+variable "master_ip_addresses" {
+  type        = "map"
+  description = "IP addresses of the master nodes."
+}
+
+variable "slave_ip_addresses" {
+  type        = "map"
+  description = "IP addresses of the slave nodes."
 }
 
 variable "instance_type" {
@@ -34,12 +40,20 @@ variable "root_device_type" {
 
 variable "master_count" {
   description = "The number of master nodes to spin up."
-  default     = 2
 }
 
 variable "slave_count" {
   description = "The number of slave nodes to spin up."
-  default     = 2
+}
+
+# Special variables
+
+variable "zookeeper_config_ip_addresses" {
+  description = "Content for /etc/zookeeper/conf/zoo.cfg."
+}
+
+variable "zookeeper_ip_addresses" {
+  description = "Content for /etc/mesos/zk."
 }
 
 # Metadata and look-up
