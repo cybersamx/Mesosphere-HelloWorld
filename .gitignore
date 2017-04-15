@@ -20,5 +20,6 @@ terraform.tfstate.backup
 ### Others ###
 /tmp
 /config.json
+/terraform.tfvars
 
 # End of https://www.gitignore.io/api/terraform
