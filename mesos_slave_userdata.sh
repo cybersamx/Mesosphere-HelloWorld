@@ -27,7 +27,7 @@ apt-get install -y mesos
 
 # Define the master nodes.
 cat > /etc/mesos/zk << EOF
-${zookeeper_master_ip_addresses}/mesos
+${zookeeper_master_urls}/mesos
 EOF
 
 ### Configure Mesos ###
